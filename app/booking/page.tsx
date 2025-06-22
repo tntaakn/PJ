@@ -80,7 +80,7 @@ function BookingContent() {
   const [activeCompanionTab, setActiveCompanionTab] = useState(1)
   const [companions, setCompanions] = useState<CompanionData[]>(() =>
     Array.from({ length: Math.max(0, totalGuests - 1) }, () => ({
-      fullName: user ? `${user.firstName} ${user.lastName}` : "",
+      fullName: user ? `${user.fullName}` : "",
       id: user?.idNumber || "",
       address: user?.address || "",
       type: user?.idType || "National",
@@ -95,7 +95,7 @@ function BookingContent() {
         { length: newCompanionCount },
         (_, index) =>
           companions[index] || {
-            fullName: user ? `${user.firstName} ${user.lastName}` : "",
+            fullName: user ? `${user.fullName}` : "",
             id: user?.idNumber || "",
             address: user?.address || "",
             type: user?.idType || "National",
@@ -139,7 +139,7 @@ function BookingContent() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Full Name</label>
                   <Input
-                    defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
+                    defaultValue={user ? `${user.fullName}` : ""}
                     placeholder="Nguyen Brakemull"
                   />
                 </div>

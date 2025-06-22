@@ -4,8 +4,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 
 interface User {
   id: string
-  firstName: string
-  lastName: string
+  fullName: string;  
   email: string
   mobile: string
   idNumber?: string
@@ -17,7 +16,14 @@ interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   signIn: (email: string, password: string) => Promise<boolean>
-  signUp: (userData: Omit<User, "id"> & { password: string }) => Promise<boolean>
+  signUp: (userData: {
+    full_name: string;
+    cccd: string;
+    guest_type_id: string;
+    email: string;
+    phone_number: string;
+    password: string;
+  }) => Promise<boolean>
   updateProfile: (userData: Partial<User>) => void
   signOut: () => void
 }
@@ -38,42 +44,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
-    // Mock authentication using email - in real app, this would call an API
-    if (email === "abcdefgh@gmail.com" && password === "password") {
-      const userData = {
-        id: "1",
-        firstName: "Nguyen",
-        lastName: "Brakenull",
-        email: "abcdefgh@gmail.com",
-        mobile: "972345789",
-        idNumber: "123456",
-        idType: "National" as const,
-        address: "123 street, ward, city",
-      }
-      setUser(userData)
-      setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(userData))
-      return true
-    }
-    return false
+    try {
+            const response = await fetch('../controllers/bookingWebController/signinController', { // <-- Thay đổi URL API tại đây
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Đăng nhập thành công, lưu token và thông tin user
+                localStorage.setItem('token', data.token);
+
+                const userData: User = {
+                    id: data.guest_account_id, 
+                    fullName: data.full_name || "",
+                    email: email,
+                    mobile: "", 
+                    idNumber: "", 
+                    idType: "National", 
+                    address: "", 
+                };
+                setUser(userData);
+                setIsAuthenticated(true);
+                localStorage.setItem("user", JSON.stringify(userData)); // Lưu thông tin user vào localStorage
+                return true;
+            } else {
+                // Đăng nhập thất bại
+                console.error("Sign-in failed:", data.message);
+                return false;
+            }
+        } catch (error) {
+            console.error("Error during sign-in:", error);
+            return false;
+        }
   }
 
-  const signUp = async (userData: Omit<User, "id"> & { password: string }): Promise<boolean> => {
-    // Mock registration - in real app, this would call an API
-    const newUser = {
-      id: Date.now().toString(),
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      mobile: userData.mobile,
-      idNumber: userData.idNumber,
-      idType: userData.idType,
-      address: userData.address,
+  const signUp = async (userData: { // Đảm bảo type của userData khớp
+    full_name: string;
+    cccd: string;
+    guest_type_id: string;
+    email: string;
+    phone_number: string;
+    password: string;
+}): Promise<boolean> => {
+    try {
+        const response = await fetch('http://localhost:3000/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                full_name: userData.full_name,
+                cccd: userData.cccd,
+                guest_type_id: userData.guest_type_id,
+                email: userData.email,
+                phone_number: userData.phone_number,
+                password: userData.password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+
+            const newUserId = data.guest_account_id || `temp-${Date.now()}`;
+
+            const newUser: User = { // Tạo User object để lưu vào AuthContext và localStorage
+              id: userData.cccd,
+              fullName: userData.full_name,
+              email: userData.email,
+              mobile: userData.phone_number,
+              idNumber: userData.cccd,
+              idType: userData.guest_type_id as "National" | "International",
+              address: "", // Trường này không có trong signup API, nên giữ rỗng
+          };
+            setUser(newUser); // Cập nhật user trong AuthContext
+            setIsAuthenticated(true); // Đặt trạng thái xác thực
+            localStorage.setItem("user", JSON.stringify(newUser)); 
+
+            return true;
+        } else {
+            console.error("Sign-up failed:", data.message);
+            throw new Error(data.message || "Registration failed."); // Ném lỗi để bắt ở frontend
+        }
+    } catch (error: any) {
+        console.error("Error during sign-up:", error);
+        return false; // Trả về false để frontend xử lý lỗi
     }
-    setUser(newUser)
-    setIsAuthenticated(true)
-    localStorage.setItem("user", JSON.stringify(newUser))
-    return true
   }
 
   const updateProfile = (userData: Partial<User>) => {

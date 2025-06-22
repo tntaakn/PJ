@@ -56,16 +56,15 @@ export default function SignUpPage() {
     const firstName = nameParts[0] || ""
     const lastName = nameParts.slice(1).join(" ") || ""
 
-    const success = await signUp({
-      firstName,
-      lastName,
+    const registrationDataForBackend = {
+      full_name: formData.fullname,
+      cccd: formData.id,
+      guest_type_id: formData.nationality as "National" | "International",
       email: formData.email,
-      mobile: formData.phoneNumber,
-      idNumber: formData.id,
-      idType: "National",
-      address: "",
+      phone_number: formData.phoneNumber,
       password: formData.password,
-    })
+    };
+    const success = await signUp(registrationDataForBackend);
 
     if (success) {
       // Redirect to profile page after successful sign up
@@ -137,16 +136,11 @@ export default function SignUpPage() {
                   <label className="block text-sm font-medium mb-1">Nationality</label>
                   <Select value={formData.nationality} onValueChange={handleNationalityChange}>
                     <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="Vietnamese" />
+                      <SelectValue placeholder="National" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Vietnamese">Vietnamese</SelectItem>
-                      <SelectItem value="American">American</SelectItem>
-                      <SelectItem value="British">British</SelectItem>
-                      <SelectItem value="Chinese">Chinese</SelectItem>
-                      <SelectItem value="Japanese">Japanese</SelectItem>
-                      <SelectItem value="Korean">Korean</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
+                      <SelectItem value="National">National</SelectItem>
+                      <SelectItem value="International">International</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
