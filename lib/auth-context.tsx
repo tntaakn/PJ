@@ -22,7 +22,7 @@ interface AuthContextType {
   signUp: (userData: {
     full_name: string;
     cccd: string;
-    guest_type_id: string;
+    guest_type_name: string;
     email: string;
     phone_number: string;
     password: string;
