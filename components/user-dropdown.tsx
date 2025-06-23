@@ -41,16 +41,16 @@ export function UserDropdown() {
       >
         <span className="flex items-center">
           <span className="h-6 w-6 rounded-full bg-[#e57373] text-white flex items-center justify-center text-xs mr-2">
-            {user.firstName.charAt(0)}
+            {user.full_name?.charAt(0)}
           </span>
-          {user.lastName}
+          {user.full_name}
         </span>
       </Button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50 border">
           <div className="p-2 border-b">
-            <div className="font-medium">{user.lastName}</div>
+            <div className="font-medium">{user.full_name}</div>
           </div>
           <div className="py-1">
             <Link

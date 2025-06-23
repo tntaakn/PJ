@@ -1,8 +1,9 @@
+// ✅ File hoàn chỉnh: SignUpPage (page.tsx) dùng guest_type_name dynamic và có kiểm tra hợp lệ
+
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -21,10 +22,23 @@ export default function SignUpPage() {
     password: "",
     confirmPassword: "",
   })
+  const [guestTypes, setGuestTypes] = useState<{ guest_type_name: string }[]>([])
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { signUp } = useAuth()
   const router = useRouter()
+
+  useEffect(() => {
+    fetch("http://localhost:4000/api/guests/guestType")
+      .then((res) => res.json())
+      .then((data) => {
+        setGuestTypes(data)
+        if (data.length > 0) {
+          setFormData((prev) => ({ ...prev, nationality: data[0].guest_type_name }))
+        }
+      })
+      .catch((err) => console.error("Failed to load guest types:", err))
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -51,33 +65,34 @@ export default function SignUpPage() {
       return
     }
 
-    // Split fullname for first and last name
-    const nameParts = formData.fullname.split(" ")
-    const firstName = nameParts[0] || ""
-    const lastName = nameParts.slice(1).join(" ") || ""
+    if (!formData.nationality) {
+      setError("Please select a guest type.")
+      setIsLoading(false)
+      return
+    }
 
     const registrationDataForBackend = {
       full_name: formData.fullname,
       cccd: formData.id,
-      guest_type_id: formData.nationality as "National" | "International",
+      guest_type_name: formData.nationality,
       email: formData.email,
       phone_number: formData.phoneNumber,
       password: formData.password,
-    };
-    const success = await signUp(registrationDataForBackend);
-
-    if (success) {
-      // Redirect to profile page after successful sign up
-      router.push("/profile")
-    } else {
-      setError("Registration failed. Please try again.")
     }
-    setIsLoading(false)
+
+    try {
+      const success = await signUp(registrationDataForBackend)
+      if (success) router.push("/profile")
+      else setError("Registration failed. Please try again.")
+    } catch (err: any) {
+      setError(err.message || "Registration failed")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <main className="min-h-screen flex relative">
-      {/* Background Image */}
       <div className="flex-1 relative">
         <Image
           src="/placeholder.svg?height=800&width=1200"
@@ -88,7 +103,6 @@ export default function SignUpPage() {
         />
         <div className="absolute inset-0 bg-blue-500/20" />
 
-        {/* Sign Up Form */}
         <div className="absolute inset-0 flex items-center justify-center p-8">
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-8 w-full max-w-md">
             <div className="text-center mb-6">
@@ -133,14 +147,17 @@ export default function SignUpPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Nationality</label>
+                  <label className="block text-sm font-medium mb-1">Guest Type</label>
                   <Select value={formData.nationality} onValueChange={handleNationalityChange}>
                     <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
-                      <SelectValue placeholder="National" />
+                      <SelectValue placeholder="Select guest type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="National">National</SelectItem>
-                      <SelectItem value="International">International</SelectItem>
+                      {guestTypes.map((type) => (
+                        <SelectItem key={type.guest_type_name} value={type.guest_type_name}>
+                          {type.guest_type_name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
