@@ -12,9 +12,9 @@ import { useAuth } from "@/lib/auth-context"
 
 // Room pricing data - should match the room data from other pages
 const roomPricing = {
-  "deluxe-room": { name: "Deluxe Room", price: 399 },
-  "executive-suite": { name: "Executive Suite", price: 599 },
-  "presidential-suite": { name: "Presidential Suite", price: 899 },
+  "deluxe-room": { name: "Deluxe Room", price: 349 },
+  "executive-suite": { name: "Executive Suite", price: 499 },
+  "presidential-suite": { name: "Presidential Suite", price: 699 },
   "superior-room": { name: "Superior Room", price: 299 },
   "family-suite": { name: "Family Suite", price: 549 },
   "standard-double-room": { name: "Standard Double Room", price: 349 },
@@ -36,11 +36,11 @@ function BookingContent() {
   const roomInfo = roomPricing[roomSlug as keyof typeof roomPricing] || roomPricing["presidential-suite"]
 
   // State for dates - get from URL params or use defaults
-  const [checkInDate, setCheckInDate] = useState(searchParams.get("checkIn") || "2025-05-30")
-  const [checkOutDate, setCheckOutDate] = useState(searchParams.get("checkOut") || "2025-06-01")
+  const [checkInDate, setCheckInDate] = useState(searchParams.get("checkIn") || "2025-06-28")
+  const [checkOutDate, setCheckOutDate] = useState(searchParams.get("checkOut") || "2025-06-30")
 
   // State for guest selection - get from URL params or use defaults
-  const [adults, setAdults] = useState(Number.parseInt(searchParams.get("adults") || "1"))
+  const [adults, setAdults] = useState(Number.parseInt(searchParams.get("adults") || "2"))
   const [children, setChildren] = useState(Number.parseInt(searchParams.get("children") || "1"))
   const [rooms, setRooms] = useState(Number.parseInt(searchParams.get("rooms") || "1"))
 
@@ -140,7 +140,7 @@ function BookingContent() {
                   <label className="block text-sm font-medium mb-2">Full Name</label>
                   <Input
                     defaultValue={user ? `${user.firstName} ${user.lastName}` : ""}
-                    placeholder="Nguyen Brakemull"
+                    placeholder="Nguyen Anh"
                   />
                 </div>
                 <div>
@@ -251,7 +251,7 @@ function BookingContent() {
                       <div>
                         <label className="block text-sm font-medium mb-2">Full Name</label>
                         <Input
-                          placeholder="Nguyen Brakemull"
+                          placeholder="Nguyen Anh"
                           value={companion.fullName}
                           onChange={(e) => updateCompanion(index, "fullName", e.target.value)}
                         />

@@ -20,7 +20,7 @@ const roomsData = [
   {
     title: "Deluxe Room",
     price: 349,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/deluxe.jpg?height=200&width=300",
     beds: "1 Queen Bed",
     size: "32 m²",
     maxGuests: 2,
@@ -30,7 +30,7 @@ const roomsData = [
   {
     title: "Executive Suite",
     price: 499,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/executive.jpg?height=200&width=300",
     beds: "1 King Bed",
     size: "45 m²",
     maxGuests: 2,
@@ -40,7 +40,7 @@ const roomsData = [
   {
     title: "Presidential Suite",
     price: 699,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/President-Suite.jpg?height=200&width=300",
     beds: "1 King Bed",
     size: "65 m²",
     maxGuests: 4,
@@ -50,7 +50,7 @@ const roomsData = [
   {
     title: "Superior Room",
     price: 299,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/superior.jpg?height=200&width=300",
     beds: "1 Queen Bed",
     size: "28 m²",
     maxGuests: 2,
@@ -60,7 +60,7 @@ const roomsData = [
   {
     title: "Family Suite",
     price: 549,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/family.jpg?height=400&width=600",
     beds: "2 Queen Beds",
     size: "55 m²",
     maxGuests: 4,
@@ -70,7 +70,7 @@ const roomsData = [
   {
     title: "Standard Double Room",
     price: 299,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/standarddouble.jpeg?height=200&width=300",
     beds: "2 Double Beds",
     size: "35 m²",
     maxGuests: 4,
@@ -78,19 +78,9 @@ const roomsData = [
     remainingRooms: 4,
   },
   {
-    title: "Superior Room",
-    price: 349,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "2 Queen Bed",
-    size: "35 m²",
-    maxGuests: 4,
-    amenities: "",
-    remainingRooms: 0,
-  },
-  {
     title: "Family Suite",
     price: 499,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/family.jpg?height=200&width=300",
     beds: "2 Queen Beds",
     size: "55 m²",
     maxGuests: 4,
@@ -100,7 +90,7 @@ const roomsData = [
   {
     title: "Standard Room",
     price: 149,
-    image: "/placeholder.svg?height=200&width=300",
+    image: "/standard.jpg?height=200&width=300",
     beds: "Double Beds",
     size: "28 m²",
     maxGuests: 2,
@@ -210,7 +200,7 @@ function RoomsContent() {
       <section className="relative">
         <div className="relative h-[400px] w-full">
           <Image
-            src="/placeholder.svg?height=400&width=1200"
+            src="/room.png?height=400&width=1200"
             alt="Hotel rooms"
             fill
             className="object-cover"
@@ -388,14 +378,14 @@ function RoomCard({
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48">
-        <Image src="/placeholder.svg?height=200&width=300" alt={title} fill className="object-cover" />
+        <Image src={image} alt={title} fill className="object-cover" />
         {remainingRooms !== undefined &&
           (remainingRooms === 0 ? (
             <div className="absolute top-0 right-0 bg-gray-700 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
               <AlertCircle className="h-3 w-3 mr-1" />
               Sold out
             </div>
-          ) : remainingRooms <= 3 ? (
+          ) : remainingRooms <= 2 ? (
             <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
               <AlertCircle className="h-3 w-3 mr-1" />
               {remainingRooms === 1 ? "Last room!" : `${remainingRooms} rooms left`}

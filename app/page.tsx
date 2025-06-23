@@ -53,7 +53,7 @@ export default function Home() {
       <section className="relative">
         <div className="relative h-[500px] w-full">
           <Image
-            src="/placeholder.svg?height=500&width=1200"
+            src="/view.jpg?height=500&width=1200"
             alt="Luxury hotel room"
             fill
             className="object-cover"
@@ -104,7 +104,7 @@ export default function Home() {
             </div>
             <div className="relative h-64 md:h-80">
               <Image
-                src="/placeholder.svg?height=320&width=480"
+                src="/pagehome.webp?height=320&width=480"
                 alt="Hotel interior"
                 fill
                 className="object-cover rounded-lg"
@@ -127,7 +127,7 @@ export default function Home() {
             <RoomCard
               title="Deluxe Room"
               price={399}
-              image="/placeholder.svg?height=200&width=300"
+              image="/deluxe.jpg?height=200&width=300"
               beds="1 Queen Bed"
               size="32 m²"
               guests="Up to 2 guests"
@@ -137,17 +137,17 @@ export default function Home() {
             <RoomCard
               title="Executive Suite"
               price={599}
-              image="/placeholder.svg?height=200&width=300"
+              image="/executive.jpg?height=200&width=300"
               beds="1 King Bed"
               size="45 m²"
               guests="Up to 2 guests"
-              amenities="Kitchenette, Balcony"
+              amenities="Bath, Balcony"
               remainingRooms={1}
             />
             <RoomCard
               title="Presidential Suite"
               price={899}
-              image="/placeholder.svg?height=200&width=300"
+              image="/President-Suite.jpg?height=200&width=300"
               beds="1 King Bed"
               size="65 m²"
               guests="Up to 4 guests"
@@ -310,7 +310,7 @@ function RoomCard({
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48">
-        <Image src="/placeholder.svg?height=200&width=300" alt={title} fill className="object-cover" />
+        <Image src={image} alt={title} fill className="object-cover" />
         {remainingRooms !== undefined && remainingRooms <= 3 && (
           <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
             <AlertCircle className="h-3 w-3 mr-1" />

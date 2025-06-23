@@ -15,8 +15,8 @@ export default function ProfilePage() {
   const [personalData, setPersonalData] = useState({
     fullName: user ? `${user.firstName} ${user.lastName}` : "",
     id: user?.idNumber || "",
-    nationality: "Vietnamese",
-    gender: "Male",
+    nationality: "National",
+    gender: "Female",
     birthdate: "2005-02-05",
   })
 
@@ -88,7 +88,7 @@ export default function ProfilePage() {
                     <Input
                       value={personalData.fullName}
                       onChange={(e) => setPersonalData({ ...personalData, fullName: e.target.value })}
-                      placeholder="Nguyen Brakemull"
+                      placeholder="Nguyen Anh"
                     />
                   </div>
                   <div>
@@ -101,13 +101,8 @@ export default function ProfilePage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Vietnamese">Vietnamese</SelectItem>
-                        <SelectItem value="American">American</SelectItem>
-                        <SelectItem value="British">British</SelectItem>
-                        <SelectItem value="Chinese">Chinese</SelectItem>
-                        <SelectItem value="Japanese">Japanese</SelectItem>
-                        <SelectItem value="Korean">Korean</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
+                        <SelectItem value="National">National</SelectItem>
+                        <SelectItem value="International">International</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

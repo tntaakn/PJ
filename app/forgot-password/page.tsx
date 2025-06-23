@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
       {/* Background Image */}
       <div className="flex-1 relative">
         <Image
-          src="/placeholder.svg?height=800&width=1200"
+          src="/views.jpeg?height=800&width=1200"
           alt="Luxury hotel resort with pools and palm trees"
           fill
           className="object-cover"

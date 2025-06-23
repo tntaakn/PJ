@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Serenity Hotel",
   description: "Experience luxury and comfort at our premier hotel destination.",
-    generator: 'v0.dev'
+    generator: 'a.dev'
 }
 
 export default function RootLayout({

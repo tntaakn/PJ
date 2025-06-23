@@ -38,7 +38,7 @@ export default function SignInPage() {
       {/* Background Image */}
       <div className="flex-1 relative">
         <Image
-          src="/placeholder.svg?height=800&width=1200"
+          src="/views.jpeg?height=800&width=1200" 
           alt="Luxury hotel resort with pools and palm trees"
           fill
           className="object-cover"
@@ -103,13 +103,6 @@ export default function SignInPage() {
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
-            {/*delete*/}
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                Demo credentials: Email: <span className="font-mono">abcdefgh@gmail.com</span>, Password:{" "}
-                <span className="font-mono">password</span>
-              </p>
-            </div>
           </div>
         </div>
       </div>
