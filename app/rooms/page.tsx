@@ -1,372 +1,136 @@
+// page.tsx
 "use client"
 
+import { useEffect, useState, useMemo } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { CalendarIcon, MapPin, Phone, Mail, AlertCircle } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import { useState, useEffect, Suspense, useMemo, useCallback } from "react"
+import { AlertCircle, User } from "lucide-react"
 import Link from "next/link"
-import { GuestSelector } from "@/components/guest-selector"
 import { ProtectedAction } from "@/components/protected-action"
-import { useSearchParams, useRouter } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
 
-// Room data with guest capacity
-const roomsData = [
-  {
-    title: "Deluxe Room",
-    price: 349,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "1 Queen Bed",
-    size: "32 m²",
-    maxGuests: 2,
-    amenities: "Balcony",
-    remainingRooms: 3,
-  },
-  {
-    title: "Executive Suite",
-    price: 499,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "1 King Bed",
-    size: "45 m²",
-    maxGuests: 2,
-    amenities: "Kitchenette, Balcony",
-    remainingRooms: 1,
-  },
-  {
-    title: "Presidential Suite",
-    price: 699,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "1 King Bed",
-    size: "65 m²",
-    maxGuests: 4,
-    amenities: "Kitchenette, Balcony",
-    remainingRooms: 2,
-  },
-  {
-    title: "Superior Room",
-    price: 299,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "1 Queen Bed",
-    size: "28 m²",
-    maxGuests: 2,
-    amenities: "",
-    remainingRooms: 5,
-  },
-  {
-    title: "Family Suite",
-    price: 549,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "2 Queen Beds",
-    size: "55 m²",
-    maxGuests: 4,
-    amenities: "Kitchenette, Balcony",
-    remainingRooms: 2,
-  },
-  {
-    title: "Standard Double Room",
-    price: 299,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "2 Double Beds",
-    size: "35 m²",
-    maxGuests: 4,
-    amenities: "Balcony",
-    remainingRooms: 4,
-  },
-  {
-    title: "Superior Room",
-    price: 349,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "2 Queen Bed",
-    size: "35 m²",
-    maxGuests: 4,
-    amenities: "",
-    remainingRooms: 0,
-  },
-  {
-    title: "Family Suite",
-    price: 499,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "2 Queen Beds",
-    size: "55 m²",
-    maxGuests: 4,
-    amenities: "Kitchenette",
-    remainingRooms: 1,
-  },
-  {
-    title: "Standard Room",
-    price: 149,
-    image: "/placeholder.svg?height=200&width=300",
-    beds: "Double Beds",
-    size: "28 m²",
-    maxGuests: 2,
-    amenities: "",
-    remainingRooms: 3,
-  },
-]
+interface RoomType {
+  room_type_id: number
+  room_type_name: string
+  room_size: string
+  bed: string
+  note: string
+  max_guests: number
+  price_room: number
+}
 
-function RoomsContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { isAuthenticated } = useAuth()
-  const [checkInDate, setCheckInDate] = useState<Date>()
-  const [checkOutDate, setCheckOutDate] = useState<Date>()
-  const [guestData, setGuestData] = useState({ adults: 1, children: 0, rooms: 1 })
-  const [isInitialized, setIsInitialized] = useState(false)
+interface Room {
+  room_id: number
+  room_type_id: number
+  room_floor: number
+  is_booked_today: number // 0 hoặc 1
+}
 
-  // Load search parameters on mount only - use a flag to prevent re-initialization
+export default function AvailableRoomsPage() {
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [checkin, setCheckin] = useState("")
+  const [checkout, setCheckout] = useState("")
+  const [adults, setAdults] = useState(1)
+  const [children, setChildren] = useState(0)
+  const [roomCount, setRoomCount] = useState(1)
+  const [showGuestSelector, setShowGuestSelector] = useState(false)
+  const [showFiltered, setShowFiltered] = useState(false)
+
   useEffect(() => {
-    if (!isInitialized) {
-      const checkIn = searchParams.get("checkIn")
-      const checkOut = searchParams.get("checkOut")
-      const adults = searchParams.get("adults")
-      const children = searchParams.get("children")
-      const rooms = searchParams.get("rooms")
-
-      if (checkIn) setCheckInDate(new Date(checkIn))
-      if (checkOut) setCheckOutDate(new Date(checkOut))
-
-      const newGuestData = {
-        adults: adults ? Number.parseInt(adults) : 1,
-        children: children ? Number.parseInt(children) : 0,
-        rooms: rooms ? Number.parseInt(rooms) : 1,
-      }
-      setGuestData(newGuestData)
-      setIsInitialized(true)
-    }
-  }, [searchParams, isInitialized])
-
-  // Filter rooms based on guest requirements using useMemo
-  const filteredRooms = useMemo(() => {
-    const { adults, children } = guestData
-    const totalGuests = adults + children
-
-    // Children can't stay alone - must have at least 1 adult
-    if (children > 0 && adults === 0) {
-      return []
-    }
-
-    // Filter rooms that can accommodate the guests
-    return roomsData.filter((room) => {
-      // Room must be available
-      if (room.remainingRooms === 0) return false
-
-      // Check if room can accommodate guests
-      // For rooms with maxGuests = 2: can accommodate up to 3 people (2 adults + 1 child)
-      // For rooms with maxGuests = 4: can accommodate up to 4 people
-      if (room.maxGuests === 2) {
-        // Can accommodate: 1-2 adults, or 2 adults + 1 child
-        return totalGuests <= 2 || (adults === 2 && children === 1)
-      } else if (room.maxGuests === 4) {
-        // Can accommodate up to 4 people
-        return totalGuests <= 4
-      }
-
-      return false
+    Promise.all([
+      fetch("http://localhost:4000/api/prices/roomType").then((res) => res.json()),
+      fetch("http://localhost:4000/api/room").then((res) => res.json()),
+    ]).then(([roomTypeData, roomData]) => {
+      setRoomTypes(roomTypeData)
+      setRooms(roomData)
     })
-  }, [guestData])
-
-  const handleUpdateSearch = useCallback(() => {
-    if (!isAuthenticated) {
-      router.push("/sign-in")
-      return
-    }
-
-    const params = new URLSearchParams()
-
-    if (checkInDate) {
-      params.set("checkIn", format(checkInDate, "yyyy-MM-dd"))
-    }
-    if (checkOutDate) {
-      params.set("checkOut", format(checkOutDate, "yyyy-MM-dd"))
-    }
-
-    params.set("adults", guestData.adults.toString())
-    params.set("children", guestData.children.toString())
-    params.set("rooms", guestData.rooms.toString())
-
-    router.push(`/rooms?${params.toString()}`)
-  }, [checkInDate, checkOutDate, guestData, router, isAuthenticated])
-
-  // Create a stable callback for GuestSelector that doesn't cause re-renders
-  const handleGuestChange = useCallback((newGuestData: { adults: number; children: number; rooms: number }) => {
-    setGuestData(newGuestData)
   }, [])
 
-  const getGuestCapacityText = (maxGuests: number) => {
-    if (maxGuests === 2) {
-      return "Up to 2 guests (or 2 adults + 1 child)"
-    }
-    return `Up to ${maxGuests} guests`
-  }
+  const guestValue = adults + children * 0.5
+
+  const roomTypeWithAvailability = useMemo(() => {
+    const filtered = roomTypes.map((type) => {
+      const remainingRooms = rooms.filter(
+        (room) => room.room_type_id === type.room_type_id && room.is_booked_today === 0
+      ).length
+      const fitsGuests = guestValue <= type.max_guests
+      return {
+        ...type,
+        remainingRooms,
+        fitsGuests,
+      }
+    })
+    return showFiltered
+      ? filtered.filter((t) => t.remainingRooms >= roomCount && t.fitsGuests)
+      : filtered
+  }, [roomTypes, rooms, guestValue, roomCount, showFiltered])
 
   return (
-    <main className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative">
-        <div className="relative h-[400px] w-full">
-          <Image
-            src="/placeholder.svg?height=400&width=1200"
-            alt="Hotel rooms"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-center px-4">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">OUR ROOMS & SUITES</h1>
-            <p className="max-w-md text-sm md:text-base">
-              Discover our selection of comfortable and luxurious accommodations designed for your perfect stay.
-            </p>
-          </div>
+    <main className="min-h-screen bg-white">
+      <div className="relative h-[400px] bg-cover bg-center text-white flex items-center justify-center" style={{ backgroundImage: "url('/hero-hotel.png')" }}>
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold uppercase tracking-wide">Our Rooms & Suites</h1>
+          <p className="text-sm">Discover our selection of comfortable and luxurious accommodations designed for your perfect stay</p>
         </div>
+      </div>
 
-        {/* Booking Form */}
-        <div className="max-w-5xl mx-auto px-4 -mt-16 relative z-10">
-          <div className="bg-white rounded-md shadow-lg p-4">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <BookingDatePicker label="Check-in" value={checkInDate} onChange={setCheckInDate} />
-              <BookingDatePicker label="Check-out" value={checkOutDate} onChange={setCheckOutDate} />
-              <div>
-                <p className="text-xs mb-1">Guests & Rooms</p>
-                <GuestSelector onChange={handleGuestChange} defaultValues={guestData} />
-              </div>
-              <Button onClick={handleUpdateSearch} className="bg-[#0e6ba8] hover:bg-[#0a5a8e] h-10">
-                Update Search
-              </Button>
-            </div>
-          </div>
+      <div className="bg-white -mt-20 z-10 relative rounded-lg shadow-lg max-w-5xl mx-auto p-6 flex flex-wrap justify-between items-end gap-4">
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold">Check-in</label>
+          <input type="date" value={checkin} onChange={e => setCheckin(e.target.value)} className="border rounded px-2 py-1" />
         </div>
-      </section>
-
-      {/* Search Results Info */}
-      {(guestData.adults > 1 || guestData.children > 0) && (
-        <section className="py-4 px-4 bg-blue-50">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center">
-              <p className="text-sm text-gray-700">
-                Showing rooms for{" "}
-                <strong>
-                  {guestData.adults} adult{guestData.adults !== 1 ? "s" : ""}
-                </strong>
-                {guestData.children > 0 && (
-                  <span>
-                    ,{" "}
-                    <strong>
-                      {guestData.children} child{guestData.children !== 1 ? "ren" : ""}
-                    </strong>
-                  </span>
-                )}
-                {guestData.rooms > 1 && (
-                  <span>
-                    ,{" "}
-                    <strong>
-                      {guestData.rooms} room{guestData.rooms !== 1 ? "s" : ""}
-                    </strong>
-                  </span>
-                )}
-              </p>
-              {guestData.children > 0 && guestData.adults === 0 && (
-                <p className="text-red-600 text-sm mt-1">
-                  ⚠️ Children cannot stay alone. At least one adult is required.
-                </p>
-              )}
-              {filteredRooms.length === 0 && guestData.adults > 0 && (
-                <p className="text-orange-600 text-sm mt-1">
-                  No rooms available for your group size. Consider booking multiple rooms or selecting rooms with higher
-                  capacity.
-                </p>
-              )}
-            </div>
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold">Check-out</label>
+          <input type="date" value={checkout} onChange={e => setCheckout(e.target.value)} className="border rounded px-2 py-1" />
+        </div>
+        <div className="relative flex flex-col">
+          <label className="text-sm font-semibold">Guests & Rooms</label>
+          <div onClick={() => setShowGuestSelector(!showGuestSelector)} className="flex items-center border rounded px-2 py-1 cursor-pointer">
+            <User className="h-4 w-4 mr-1" />
+            <span>{adults} Adult(s), {children} Child, {roomCount} Room(s)</span>
           </div>
-        </section>
-      )}
-
-      {/* Rooms Grid */}
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto">
-          {filteredRooms.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-6">
-              {filteredRooms.map((room, index) => (
-                <RoomCard
-                  key={`${room.title}-${index}`}
-                  title={room.title}
-                  price={room.price}
-                  image={room.image}
-                  beds={room.beds}
-                  size={room.size}
-                  guests={getGuestCapacityText(room.maxGuests)}
-                  amenities={room.amenities}
-                  remainingRooms={room.remainingRooms}
-                />
+          {showGuestSelector && (
+            <div className="absolute top-16 bg-white border rounded shadow-md p-4 z-20 w-64">
+              {[['Adult(s)', adults, setAdults], ['Child', children, setChildren], ['Room(s)', roomCount, setRoomCount]].map(([label, value, set]: any) => (
+                <div key={label} className="flex justify-between items-center mb-2">
+                  <span>{label}</span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" onClick={() => set(Math.max((value as number) - 1, 0))}>-</Button>
+                    <span className="w-6 text-center">{value}</span>
+                    <Button variant="outline" size="icon" onClick={() => set((value as number) + 1)}>+</Button>
+                  </div>
+                </div>
               ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-4">No Available Rooms</h3>
-              <p className="text-gray-600 mb-6">
-                No rooms match your current search criteria. Please adjust your guest requirements or dates.
-              </p>
-              <div className="space-y-2 text-sm text-gray-500">
-                <p>
-                  💡 <strong>Tip:</strong> Rooms with "Up to 2 guests" can accommodate 2 adults + 1 child
-                </p>
-                <p>
-                  💡 <strong>Tip:</strong> For larger groups, consider booking multiple rooms
-                </p>
-              </div>
             </div>
           )}
         </div>
-      </section>
+        <Button className="bg-blue-700 hover:bg-blue-800 w-full md:w-auto" onClick={() => setShowFiltered(true)}>Check Availability</Button>
+      </div>
 
-      {/* Footer */}
-      <Footer />
+      <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="grid md:grid-cols-3 gap-6">
+          {roomTypeWithAvailability.map((room) => (
+            <RoomCard
+              key={room.room_type_id}
+              room_type_id={room.room_type_id} // thêm dòng này
+              title={room.room_type_name}
+              price={room.price_room}
+              image="/placeholder.svg?height=200&width=300"
+              beds={room.bed}
+              size={room.room_size}
+              guests={`Up to ${room.max_guests} guests`}
+              amenities={room.note}
+              remainingRooms={room.remainingRooms}
+            />
+          ))}
+        </div>
+      </div>
     </main>
   )
 }
 
-export default function RoomsPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <RoomsContent />
-    </Suspense>
-  )
-}
-
-function BookingDatePicker({
-  label,
-  value,
-  onChange,
-}: { label: string; value?: Date; onChange: (date: Date | undefined) => void }) {
-  return (
-    <div>
-      <p className="text-xs mb-1">{label}</p>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal border border-gray-300",
-              !value && "text-muted-foreground",
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {value ? format(value, "PPP") : `Select ${label.toLowerCase()} date`}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
-          <Calendar mode="single" selected={value} onSelect={onChange} initialFocus />
-        </PopoverContent>
-      </Popover>
-    </div>
-  )
-}
-
 function RoomCard({
+  room_type_id,
   title,
   price,
   image,
@@ -376,6 +140,7 @@ function RoomCard({
   amenities,
   remainingRooms,
 }: {
+  room_type_id: number
   title: string
   price: number
   image: string
@@ -385,96 +150,46 @@ function RoomCard({
   amenities: string
   remainingRooms?: number
 }) {
+
   return (
-    <Card className="overflow-hidden">
+    <div className="border rounded-lg shadow-md overflow-hidden bg-white">
       <div className="relative h-48">
-        <Image src="/placeholder.svg?height=200&width=300" alt={title} fill className="object-cover" />
-        {remainingRooms !== undefined &&
-          (remainingRooms === 0 ? (
-            <div className="absolute top-0 right-0 bg-gray-700 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Sold out
-            </div>
-          ) : remainingRooms <= 3 ? (
-            <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              {remainingRooms === 1 ? "Last room!" : `${remainingRooms} rooms left`}
-            </div>
-          ) : null)}
+        <Image src={image} alt={title} fill className="object-cover" />
+        {remainingRooms !== undefined && remainingRooms === 0 && (
+          <div className="absolute top-0 right-0 bg-gray-700 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
+            <AlertCircle className="h-3 w-3 mr-1" /> Sold out
+          </div>
+        )}
+        {remainingRooms !== undefined && remainingRooms > 0 && remainingRooms <= 3 && (
+          <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
+            <AlertCircle className="h-3 w-3 mr-1" /> {remainingRooms} rooms left
+          </div>
+        )}
       </div>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold">{title}</h3>
+      <div className="p-4 space-y-2">
+        <div className="flex justify-between items-center">
+          <h3 className="font-bold text-lg">{title}</h3>
           <div className="text-right">
             <span className="font-bold text-lg">${price}</span>
-            <span className="text-xs text-gray-500">/night</span>
+            <span className="text-xs text-gray-500"> / night</span>
           </div>
         </div>
-        <p className="text-sm text-gray-500 mb-4">
-          Enjoy a spacious and modern room with all the essential amenities for a comfortable stay.
-        </p>
-        <div className="grid grid-cols-1 gap-2 text-xs mb-4">
-          <div className="flex items-center justify-between">
-            <span className="font-medium">{beds}</span>
-            <span>{size}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-green-600 font-medium">{guests}</span>
-            <span>{amenities}</span>
-          </div>
-        </div>
-        <ProtectedAction>
-          <Link href={`/rooms/${title.toLowerCase().replace(/\s+/g, "-")}`}>
-            <Button className="w-full bg-[#0e6ba8] hover:bg-[#0a5a8e] text-xs h-8" disabled={remainingRooms === 0}>
-              {remainingRooms === 0 ? "Not Available" : "View Detail"}
+          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <li>{size} m²</li>
+            <li>{beds}</li>
+            <li>{guests}</li>
+          </ul>
+
+        {amenities && <p className="text-xs text-gray-500 italic">{amenities}</p>}
+
+          <ProtectedAction>
+            <Link href={`/booking?room=${room_type_id}`}>
+            <Button className="w-full bg-[#0e6ba8] hover:bg-[#0a5a8e] text-xs h-8 mt-2" disabled={remainingRooms === 0}>
+              {remainingRooms === 0 ? "Not Available" : "Book Now"}
             </Button>
           </Link>
         </ProtectedAction>
-      </CardContent>
-    </Card>
-  )
-}
-
-function Footer() {
-  return (
-    <footer className="border-t py-8 px-4 mt-auto">
-      <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
-        <div>
-          <h3 className="font-bold mb-2">Serenity Hotel</h3>
-          <p className="text-sm text-gray-600">Experience luxury and comfort at our premier hotel destination.</p>
-        </div>
-        <div>
-          <h3 className="font-bold mb-2">Contact</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-gray-500" />
-              <span>123 Hotel Street, City Name, Country</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-gray-500" />
-              <span>+1 (123) 456-7890</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gray-500" />
-              <span>info@serenityhotel.com</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 className="font-bold mb-2">Newsletter</h3>
-          <p className="text-sm text-gray-600 mb-2">Subscribe to our newsletter for special deals and updates.</p>
-          <div className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Your e-mail"
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
-            <ProtectedAction>
-              <Button className="bg-[#0e6ba8] hover:bg-[#0a5a8e] h-9">Subscribe</Button>
-            </ProtectedAction>
-          </div>
-        </div>
       </div>
-    </footer>
+    </div>
   )
 }

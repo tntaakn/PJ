@@ -1,5 +1,3 @@
-// ✅ File hoàn chỉnh: SignUpPage (page.tsx) dùng guest_type_name dynamic và có kiểm tra hợp lệ
-
 "use client"
 
 import type React from "react"
@@ -16,13 +14,13 @@ export default function SignUpPage() {
   const [formData, setFormData] = useState({
     fullname: "",
     id: "",
-    nationality: "",
+    nationality: "", // chứa guest_type_id dưới dạng string
     email: "",
     phoneNumber: "",
     password: "",
     confirmPassword: "",
   })
-  const [guestTypes, setGuestTypes] = useState<{ guest_type_name: string }[]>([])
+  const [guestTypes, setGuestTypes] = useState<{ guest_type_id: number; guest_type_name: string }[]>([])
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { signUp } = useAuth()
@@ -34,7 +32,7 @@ export default function SignUpPage() {
       .then((data) => {
         setGuestTypes(data)
         if (data.length > 0) {
-          setFormData((prev) => ({ ...prev, nationality: data[0].guest_type_name }))
+          setFormData((prev) => ({ ...prev, nationality: data[0].guest_type_id.toString() }))
         }
       })
       .catch((err) => console.error("Failed to load guest types:", err))
@@ -74,7 +72,7 @@ export default function SignUpPage() {
     const registrationDataForBackend = {
       full_name: formData.fullname,
       cccd: formData.id,
-      guest_type_name: formData.nationality,
+      guest_type_id: parseInt(formData.nationality),
       email: formData.email,
       phone_number: formData.phoneNumber,
       password: formData.password,
@@ -154,7 +152,7 @@ export default function SignUpPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {guestTypes.map((type) => (
-                        <SelectItem key={type.guest_type_name} value={type.guest_type_name}>
+                        <SelectItem key={type.guest_type_id} value={type.guest_type_id.toString()}>
                           {type.guest_type_name}
                         </SelectItem>
                       ))}
