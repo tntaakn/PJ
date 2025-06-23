@@ -93,7 +93,7 @@ export default function SignUpPage() {
     <main className="min-h-screen flex relative">
       <div className="flex-1 relative">
         <Image
-          src="/placeholder.svg?height=800&width=1200"
+          src="/view.jpeg??height=800&width=1200"
           alt="Luxury hotel resort with pools and palm trees"
           fill
           className="object-cover"
@@ -123,7 +123,7 @@ export default function SignUpPage() {
                 <Input
                   type="text"
                   name="fullname"
-                  placeholder="Nguyen Brakemull"
+                  placeholder="Nguyen Brakenull"
                   value={formData.fullname}
                   onChange={handleChange}
                   required

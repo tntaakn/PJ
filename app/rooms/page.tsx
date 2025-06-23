@@ -9,7 +9,7 @@ import Link from "next/link"
 import { ProtectedAction } from "@/components/protected-action"
 
 interface RoomType {
-  room_type_id: number
+  room_type_id: string 
   room_type_name: string
   room_size: string
   bed: string
@@ -20,10 +20,20 @@ interface RoomType {
 
 interface Room {
   room_id: number
-  room_type_id: number
+  room_type_id: string
   room_floor: number
   is_booked_today: number // 0 hoặc 1
 }
+
+const roomTypeImages: { [key: string]: string } = { // Thay đổi từ number sang string
+  "RT01": "/deluxe1.jpg",
+  "RT02": "/family.jpg?height=400&width=800",
+  "RT03": "/deluxe.jpg",
+  "RT04": "/single.jpg",
+  "RT05": "/standarddouble.jpeg",
+  "RT06": "/ctiyview.jpg",
+  "RT07": "/family-suite.jpg",
+};
 
 export default function AvailableRoomsPage() {
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([])
@@ -87,7 +97,7 @@ export default function AvailableRoomsPage() {
           <label className="text-sm font-semibold">Guests & Rooms</label>
           <div onClick={() => setShowGuestSelector(!showGuestSelector)} className="flex items-center border rounded px-2 py-1 cursor-pointer">
             <User className="h-4 w-4 mr-1" />
-            <span>{adults} Adult(s), {children} Child, {roomCount} Room(s)</span>
+            <span>{adults} Adult(s), {children} Child(s), {roomCount} Room(s)</span>
           </div>
           {showGuestSelector && (
             <div className="absolute top-16 bg-white border rounded shadow-md p-4 z-20 w-64">
@@ -104,7 +114,7 @@ export default function AvailableRoomsPage() {
             </div>
           )}
         </div>
-        <Button className="bg-blue-700 hover:bg-blue-800 w-full md:w-auto" onClick={() => setShowFiltered(true)}>Check Availability</Button>
+        <Button className="bg-[#0e6ba8] hover:bg-[#0a5a8e] h-10" onClick={() => setShowFiltered(true)}>Check Availability</Button>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-12">
@@ -112,10 +122,10 @@ export default function AvailableRoomsPage() {
           {roomTypeWithAvailability.map((room) => (
             <RoomCard
               key={room.room_type_id}
-              room_type_id={room.room_type_id} // thêm dòng này
+              room_type_id={room.room_type_id}
               title={room.room_type_name}
               price={room.price_room}
-              image="/placeholder.svg?height=200&width=300"
+              image={roomTypeImages[room.room_type_id] || "/acommodate.jpg"}
               beds={room.bed}
               size={room.room_size}
               guests={`Up to ${room.max_guests} guests`}
@@ -140,7 +150,7 @@ function RoomCard({
   amenities,
   remainingRooms,
 }: {
-  room_type_id: number
+  room_type_id: string
   title: string
   price: number
   image: string

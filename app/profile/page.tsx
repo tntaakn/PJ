@@ -127,10 +127,13 @@ useEffect(() => {
               <label className="text-sm font-medium">ID</label>
               <Input name="cccd" value={profile.cccd} onChange={handleChange} />
             </div>
-            <div>
-              <label className="text-sm font-medium">Nationality</label>
-              <Select value={profile.guest_type_id.toString()} onValueChange={handleGuestTypeChange}>
-                <SelectTrigger>
+                <div>
+              <label className="block text-sm font-medium mb-1">Guest Type</label>
+              <Select
+                value={profile.guest_type_id?.toString() ?? ""} // Sử dụng optional chaining và nullish coalescing
+                onValueChange={handleGuestTypeChange}
+              >
+                <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
                   <SelectValue placeholder="Select guest type" />
                 </SelectTrigger>
                 <SelectContent>
