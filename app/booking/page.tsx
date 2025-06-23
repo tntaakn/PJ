@@ -175,7 +175,7 @@ export default function BookingFormPage() {
           <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full bg-blue-700 hover:bg-blue-800"
+            className="w-full bg-[#0e6ba8] hover:bg-[#0a5a8e]"
           >
             {isLoading ? "Submitting..." : "Submit Reservation"}
           </Button>

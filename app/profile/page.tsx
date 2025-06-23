@@ -36,8 +36,14 @@ useEffect(() => {
     headers: { Authorization: `Bearer ${token}` },
   })
     .then((res) => res.json())
-    .then(setProfile)
-    .catch(() => setError("Failed to load profile"))
+    .then((data) => {
+        if (data.birthday) { // Chuyển đổi định dạng ngày tháng
+          const date = new Date(data.birthday);
+          data.birthday = date.toISOString().split('T')[0];
+        }
+        setProfile(data);
+      })
+      .catch(() => setError("Failed to load profile"))
 
   fetch("http://localhost:4000/api/guests/guestType")
     .then((res) => res.json())
@@ -127,13 +133,10 @@ useEffect(() => {
               <label className="text-sm font-medium">ID</label>
               <Input name="cccd" value={profile.cccd} onChange={handleChange} />
             </div>
-                <div>
-              <label className="block text-sm font-medium mb-1">Guest Type</label>
-              <Select
-                value={profile.guest_type_id?.toString() ?? ""} // Sử dụng optional chaining và nullish coalescing
-                onValueChange={handleGuestTypeChange}
-              >
-                <SelectTrigger className="h-10 bg-gray-50 border-gray-200">
+            <div>
+              <label className="text-sm font-medium">Nationality</label>
+              <Select value={profile.guest_type_id.toString()} onValueChange={handleGuestTypeChange}>
+                <SelectTrigger>
                   <SelectValue placeholder="Select guest type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,7 +162,12 @@ useEffect(() => {
             </div>
             <div>
               <label className="text-sm font-medium">Birthdate</label>
-              <Input type="date" name="birthday" value={profile.birthday || ""} onChange={handleChange} />
+              <Input
+                type="date"
+                name="birthday"
+                value={profile.birthday || ""} 
+                onChange={handleChange}
+              />
             </div>
           </div>
           <div className="pt-4">

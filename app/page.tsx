@@ -177,11 +177,13 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-8">
-            <Link href="/rooms">
-              <Button variant="outline" className="border-[#0e6ba8] text-[#0e6ba8] hover:bg-[#0e6ba8] hover:text-white">
-                View All Rooms
-              </Button>
-            </Link>
+            <ProtectedAction>
+              <Link href="/rooms">
+                <Button variant="outline" className="border-[#0e6ba8] text-[#0e6ba8] hover:bg-[#0e6ba8] hover:text-white">
+                  View All Rooms
+                </Button>
+              </Link>
+            </ProtectedAction>
           </div>
         </div>
       </section>
@@ -268,7 +270,9 @@ export default function Home() {
             Book your stay directly on our website today where you receive direct-to-hotel benefits.
           </p>
           <ProtectedAction>
-            <Button className="bg-[#0e6ba8] hover:bg-[#0a5a8e]">BOOK NOW</Button>
+            <Link href={`/booking?room=${"RT01"}`} className="inline-block">
+              <Button className="bg-[#0e6ba8] hover:bg-[#0a5a8e]">BOOK NOW</Button>
+            </Link>
           </ProtectedAction>
         </div>
       </section>
@@ -365,11 +369,13 @@ function RoomCard({
             <span>{amenities}</span>
           </div>
         </div>
-        <Link href={`/booking?room=${room_type_id}`}>
-            <Button className="w-full bg-[#0e6ba8] hover:bg-[#0a5a8e] text-xs h-8 mt-2" disabled={remainingRooms === 0}>
-              {remainingRooms === 0 ? "Not Available" : "Book Now"}
-            </Button>
-        </Link>
+        <ProtectedAction>
+          <Link href={`/booking?room=${room_type_id}`}>
+              <Button className="w-full bg-[#0e6ba8] hover:bg-[#0a5a8e] text-xs h-8 mt-2" disabled={remainingRooms === 0}>
+                {remainingRooms === 0 ? "Not Available" : "Book Now"}
+              </Button>
+          </Link>
+        </ProtectedAction>
       </CardContent>
     </Card>
   )
