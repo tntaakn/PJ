@@ -19,14 +19,15 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
-  signUp: (userData: {
-    full_name: string;
-    cccd: string;
-    guest_type_name: string;
-    email: string;
-    phone_number: string;
-    password: string;
-  }) => Promise<boolean>;
+signUp: (userData: {
+  full_name: string;
+  cccd: string;
+  guest_type_id: number;
+  email: string;
+  phone_number: string;
+  password: string;
+}) => Promise<boolean>
+
   signOut: () => void;
 }
 
@@ -66,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (userData: {
   full_name: string;
   cccd: string;
-  guest_type_name: string;
+  guest_type_id: number;
   email: string;
   phone_number: string;
   password: string;
@@ -84,10 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const data = await res.json();
-
     localStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
-
     return true;
   } catch (err) {
     console.error("Sign up error:", err);
@@ -95,12 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 };
 
-
-  const signOut = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    setUser(null)
-  }
+const signOut = () => {
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+  setUser(null)
+  window.location.href = "/"
+}
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, signIn, signUp, signOut }}>
