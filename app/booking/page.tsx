@@ -60,6 +60,7 @@ export default function BookingFormPage() {
       },
       body: JSON.stringify({
         guest_fullname: form.full_name,
+        guest_cccd: form.cccd,
         guest_phone: form.phone_number,
         guest_email: form.email,
         guest_address: form.address,
