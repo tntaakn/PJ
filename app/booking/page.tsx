@@ -42,7 +42,7 @@ export default function BookingFormPage() {
   }, [roomTypeId])
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/guests/guestType")
+    fetch("http://localhost:4000/api/prices/guestType")
       .then((res) => res.json())
       .then((data) => setGuestTypes(data))
       .catch((err) => console.error("Failed to load guest types:", err))

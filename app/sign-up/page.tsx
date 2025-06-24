@@ -27,7 +27,7 @@ export default function SignUpPage() {
   const router = useRouter()
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/guests/guestType")
+    fetch("http://localhost:4000/api/prices/guestType")
       .then((res) => res.json())
       .then((data) => {
         setGuestTypes(data)
