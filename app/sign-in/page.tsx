@@ -103,13 +103,6 @@ export default function SignInPage() {
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
-            {/*delete*/}
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                Demo credentials: Email: <span className="font-mono">abcdefgh@gmail.com</span>, Password:{" "}
-                <span className="font-mono">password</span>
-              </p>
-            </div>
           </div>
         </div>
       </div>

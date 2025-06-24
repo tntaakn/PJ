@@ -13,7 +13,7 @@ interface Reservation {
   guest_phone: string;
   guest_email: string;
   guest_address: string | null;
-  guest_type_id: number | null;
+  guest_type_id: string | null;
   check_in: string;
   check_out: string;
   room_type_id: number;
@@ -34,10 +34,20 @@ interface BookingCardProps {
   mobile: string;
   checkIn: string;
   checkOut: string;
-  price: string;
   status: string;
   confirmationNumber: number | string;
 }
+
+const roomTypeImages: { [key: string]: string } = { 
+  "RT01": "/deluxe1.jpg",
+  "RT02": "/family.jpg?height=400&width=800",
+  "RT03": "/deluxe.jpg",
+  "RT04": "/single.jpg",
+  "RT05": "/standarddouble.jpeg",
+  "RT06": "/ctiyview.jpg",
+  "RT07": "/family-suite.jpg",
+};
+
 
 export default function MyBookingPage() {
   const [bookings, setBookings] = useState<BookingCardProps[]>([]);
@@ -59,7 +69,7 @@ export default function MyBookingPage() {
         const formattedBookings: BookingCardProps[] = response.data.map((reservation) => ({
           id: reservation.reservation_id,
           roomType: `Room Type ${reservation.room_type_id}`,
-          roomImage: "/placeholder.svg?height=100&width=150",
+          roomImage: roomTypeImages[reservation.room_type_id] || "/acommodate.jpg",
           name: reservation.guest_fullname,
           mobile: reservation.guest_phone,
           checkIn: new Date(reservation.check_in).toLocaleDateString("en-US", {
@@ -74,7 +84,6 @@ export default function MyBookingPage() {
             month: "long",
             day: "numeric",
           }),
-          price: "$0 USD",
           status: reservation.status || "Unknown",
           confirmationNumber: reservation.reservation_id,
         }));
@@ -162,20 +171,11 @@ function BookingCard({ booking }: { booking: BookingCardProps }) {
         <div className="md:col-span-1">
           <div className="relative h-32 md:h-full">
             <Image
-              src={booking.roomImage || "/placeholder.svg"}
+              src={booking.roomImage || "/acommodate.jpg"}
               alt={booking.roomType}
               fill
               className="object-cover"
             />
-          </div>
-          <div className="p-2 bg-gray-100 text-center">
-            <Link
-              href={`/rooms/${booking.roomType.toLowerCase().replace(/\s+/g, "-")}`}
-            >
-              <Button variant="outline" size="sm" className="text-[#0e6ba8] text-xs">
-                View
-              </Button>
-            </Link>
           </div>
           <div className="p-2 text-center text-sm font-medium">{booking.roomType}</div>
         </div>
@@ -197,10 +197,6 @@ function BookingCard({ booking }: { booking: BookingCardProps }) {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <div>
-                <div className="text-sm text-gray-500">Price</div>
-                <div>{booking.price}</div>
-              </div>
               <div className={`font-medium ${getStatusColor(booking.status)}`}>
                 {booking.status}
               </div>
