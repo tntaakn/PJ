@@ -49,10 +49,15 @@ export default function BookingFormPage() {
   }, [])
 
   const handleSubmit = async () => {
-    setIsLoading(true)
+  setIsLoading(true)
+
+  try {
     const res = await fetch("http://localhost:4000/api/bookingweb/reservation", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
       body: JSON.stringify({
         guest_fullname: form.full_name,
         guest_phone: form.phone_number,
@@ -67,16 +72,24 @@ export default function BookingFormPage() {
         children,
         reservation_note: note,
       })
-    })
+    });
 
-    if (res.ok) {
-      router.push("/my-booking")
-    } else {
-      setIsLoading(false)
-      const data = await res.json()
-      alert("Failed: " + data.error)
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert("❌ Failed: " + (data.message || data.error || "Unknown error"));
+      setIsLoading(false);
+      return;
     }
+
+    router.push("/my-booking");
+  } catch (err) {
+    console.error("Error submitting reservation:", err);
+    alert("❌ Network or server error!");
+    setIsLoading(false);
   }
+};
+
 
   return (
     <div className="bg-[#e9edf1] min-h-screen">

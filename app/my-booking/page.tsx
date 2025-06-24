@@ -1,4 +1,4 @@
-"use client"; // Add this line at the very top
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -7,55 +7,58 @@ import { MapPin, Phone, Mail, Calendar } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-// Define the Reservation interface based on your backend's data structure
 interface Reservation {
-  reservation_id: number; // Assuming reservation_id is a number in your DB
+  reservation_id: number;
   guest_fullname: string;
   guest_phone: string;
   guest_email: string;
-  guest_address: string | null; // Assuming it can be null
-  guest_type_id: number | null; // Assuming it can be null
-  check_in: string; // Dates are often strings from the DB
+  guest_address: string | null;
+  guest_type_id: number | null;
+  check_in: string;
   check_out: string;
-  room_type_id: number; // Assuming it's a number
+  room_type_id: number;
   number_of_rooms: number;
   adults: number;
   children: number;
-  reservation_note: string | null; // Assuming it can be null
-  recommended_rooms: string | null; // Assuming it can be null
-  status: string; // From your backend code, 'status' is being updated
-  guest_id_card?: string | null; // From updateReservation, but might not be fetched by getReservations
+  reservation_note: string | null;
+  recommended_rooms: string | null;
+  status: string;
+  guest_id_card?: string | null;
 }
 
-
-// Also define the type for your BookingCard props, as it's slightly different
 interface BookingCardProps {
-    id: number | string;
-    roomType: string;
-    roomImage: string;
-    name: string;
-    mobile: string;
-    checkIn: string;
-    checkOut: string;
-    price: string;
-    status: string;
-    confirmationNumber: number | string;
+  id: number | string;
+  roomType: string;
+  roomImage: string;
+  name: string;
+  mobile: string;
+  checkIn: string;
+  checkOut: string;
+  price: string;
+  status: string;
+  confirmationNumber: number | string;
 }
-
 
 export default function MyBookingPage() {
-  const [bookings, setBookings] = useState<BookingCardProps[]>([]); // State to store fetched bookings
+  const [bookings, setBookings] = useState<BookingCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await axios.get<Reservation[]>("http://localhost:4000/api/bookingweb/reservation");
+        const response = await axios.get<Reservation[]>(
+          "http://localhost:4000/api/bookingweb/mybookings",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
 
         const formattedBookings: BookingCardProps[] = response.data.map((reservation) => ({
           id: reservation.reservation_id,
-          roomType: `Room Type ${reservation.room_type_id}`, // Placeholder, adjust as needed
+          roomType: `Room Type ${reservation.room_type_id}`,
           roomImage: "/placeholder.svg?height=100&width=150",
           name: reservation.guest_fullname,
           mobile: reservation.guest_phone,
@@ -75,14 +78,15 @@ export default function MyBookingPage() {
           status: reservation.status || "Unknown",
           confirmationNumber: reservation.reservation_id,
         }));
+
         setBookings(formattedBookings);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
-            setError(err.message);
+          setError(err.message);
         } else if (err instanceof Error) {
-            setError(err.message);
+          setError(err.message);
         } else {
-            setError("An unexpected error occurred.");
+          setError("An unexpected error occurred.");
         }
         console.error("Error fetching bookings:", err);
       } finally {
@@ -111,16 +115,12 @@ export default function MyBookingPage() {
 
   return (
     <main className="flex flex-col min-h-screen">
-      {/* Header Banner */}
       <section className="bg-[#1e2a4a] text-white py-8">
         <div className="max-w-5xl mx-auto px-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-center">
-            My Booking
-          </h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-center">My Booking</h1>
         </div>
       </section>
 
-      {/* Bookings List */}
       <section className="py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-6">
@@ -135,7 +135,6 @@ export default function MyBookingPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
     </main>
   );
@@ -178,9 +177,7 @@ function BookingCard({ booking }: { booking: BookingCardProps }) {
               </Button>
             </Link>
           </div>
-          <div className="p-2 text-center text-sm font-medium">
-            {booking.roomType}
-          </div>
+          <div className="p-2 text-center text-sm font-medium">{booking.roomType}</div>
         </div>
 
         <div className="md:col-span-3 p-4">
