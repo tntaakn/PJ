@@ -337,12 +337,6 @@ function RoomCard({
     <Card className="overflow-hidden">
       <div className="relative h-48">
         <Image src={image} alt={title} fill className="object-cover" />
-        {remainingRooms !== undefined && remainingRooms <= 3 && (
-          <div className="absolute top-0 right-0 bg-red-600 text-white px-2 py-1 text-xs font-medium m-2 rounded-md flex items-center">
-            <AlertCircle className="h-3 w-3 mr-1" />
-            {remainingRooms === 1 ? "Last room!" : `${remainingRooms} rooms left`}
-          </div>
-        )}
       </div>
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-2">

@@ -88,15 +88,15 @@ export default function BookingFormPage() {
         <div className="bg-white p-8 rounded shadow space-y-6">
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block font-medium mb-1">Full Name</label>
+              <label className="block font-medium mb-1">Full Name<span className="text-red-500"> *</span></label>
               <input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
             <div>
-              <label className="block font-medium mb-1">ID</label>
+              <label className="block font-medium mb-1">ID<span className="text-red-500"> *</span></label>
               <input value={form.cccd} onChange={e => setForm({ ...form, cccd: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
             <div>
-              <label className="block font-medium mb-1">Guest Type</label>
+              <label className="block font-medium mb-1">Guest Type<span className="text-red-500"> *</span></label>
               <Select value={form.guest_type} onValueChange={(value) => setForm({ ...form, guest_type: value })}>
                 <SelectTrigger className="w-full border border-gray-300 rounded px-3 py-2">
                   <SelectValue placeholder="Select guest type" />
@@ -111,15 +111,15 @@ export default function BookingFormPage() {
               </Select>
             </div>
             <div>
-              <label className="block font-medium mb-1">Phone Number</label>
+              <label className="block font-medium mb-1">Phone Number<span className="text-red-500"> *</span></label>
               <input value={form.phone_number} onChange={e => setForm({ ...form, phone_number: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
             <div className="col-span-2">
-              <label className="block font-medium mb-1">Address</label>
+              <label className="block font-medium mb-1">Address<span className="text-red-500"> *</span></label>
               <input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
             <div className="col-span-2">
-              <label className="block font-medium mb-1">Email</label>
+              <label className="block font-medium mb-1">Email<span className="text-red-500"> *</span></label>
               <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
           </div>
@@ -133,17 +133,17 @@ export default function BookingFormPage() {
 
           <div className="grid grid-cols-2 gap-6">
             <div>
-              <label className="block font-medium mb-1">Date From</label>
+              <label className="block font-medium mb-1">Date From<span className="text-red-500"> *</span></label>
               <input type="date" value={checkIn} onChange={e => setCheckIn(e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
             <div>
-              <label className="block font-medium mb-1">Date To</label>
+              <label className="block font-medium mb-1">Date To<span className="text-red-500"> *</span></label>
               <input type="date" value={checkOut} onChange={e => setCheckOut(e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2" />
             </div>
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Rooms & Guests</label>
+            <label className="block font-medium mb-1">Rooms & Guests<span className="text-red-500"> *</span></label>
             <div
               className="w-full border border-gray-300 rounded px-3 py-2 cursor-pointer mb-2 bg-white"
               onClick={() => setShowSelector(!showSelector)}
