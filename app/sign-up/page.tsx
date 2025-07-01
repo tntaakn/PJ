@@ -26,7 +26,7 @@ export default function SignUpPage() {
   const { signUp } = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
+  useEffect(() => { 
     fetch("http://localhost:4000/api/prices/guestType")
       .then((res) => res.json())
       .then((data) => {
